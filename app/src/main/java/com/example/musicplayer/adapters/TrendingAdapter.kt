@@ -4,79 +4,64 @@ import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.musicplayer.R
 import com.example.musicplayer.activities.PlayerActivity
 import com.example.musicplayer.databinding.TrendingItemBinding
 import com.example.musicplayer.models.TrendingModel
 
 class TrendingAdapter(
     private val items: List<TrendingModel>,
-    private val onItemClicked: (TrendingModel) -> Unit // callback to update playbar in MainActivity
+    private val onItemClicked: (TrendingModel) -> Unit
 ) : RecyclerView.Adapter<TrendingAdapter.ViewHolder>() {
 
-    // Keeps track of currently selected item
     private var selectedPosition = -1
 
+    class ViewHolder(val binding: TrendingItemBinding) : RecyclerView.ViewHolder(binding.root)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         val binding = TrendingItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-
         return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = items[position]
 
-        val currentItem = items[position]
+        holder.binding.apply {
+            itemTitle.text = item.title
+            itemSubtitle.text = item.subtitle
+            itemImage.setImageResource(item.imageRes)
 
-        holder.title.text = currentItem.title
-        holder.subtitle.text = currentItem.subtitle
-        holder.image.setImageResource(currentItem.imageRes)
-
-        // Highlight selected item
-        if (position == selectedPosition) {
-            holder.cardView.setCardBackgroundColor(Color.parseColor("#2A1A3A"))
-            holder.title.setTextColor(Color.parseColor("#FF00FF"))
-        } else {
-            holder.cardView.setCardBackgroundColor(Color.TRANSPARENT)
-            holder.title.setTextColor(Color.WHITE)
-        }
-
-        holder.itemView.setOnClickListener {
-
-            onItemClicked(currentItem)
-
-            val context = holder.itemView.context
-            val intent = Intent(context, PlayerActivity::class.java).apply {
-                putExtra("itemTitle", currentItem.title)
-                putExtra("itemSubtitle", currentItem.subtitle)
-                putExtra("itemImage", currentItem.imageRes)
+            // Change color if this item is selected
+            if (position == selectedPosition) {
+                cvTrending.setCardBackgroundColor(Color.parseColor("#2A1A3A"))
+                itemTitle.setTextColor(Color.parseColor("#FF00FF"))
+            } else {
+                cvTrending.setCardBackgroundColor(Color.TRANSPARENT)
+                itemTitle.setTextColor(Color.WHITE)
             }
 
-            context.startActivity(intent)
+            root.setOnClickListener {
+                // Update MainActivity playbar
+                onItemClicked(item)
 
-            val oldPosition = selectedPosition
-            selectedPosition = position
+                // Open PlayerActivity
+                val context = root.context
+                val intent = Intent(context, PlayerActivity::class.java).apply {
+                    putExtra("itemTitle", item.title)
+                    putExtra("itemSubtitle", item.subtitle)
+                    putExtra("itemImage", item.imageRes)
+                }
+                context.startActivity(intent)
 
-            // Refresh old and new selected items
-            if (oldPosition != -1) {
-                notifyItemChanged(oldPosition)
+                // Update selected item highlighting
+                val oldPosition = selectedPosition
+                selectedPosition = holder.adapterPosition
+
+                if (oldPosition != -1) notifyItemChanged(oldPosition)
+                notifyItemChanged(selectedPosition)
             }
-
-            notifyItemChanged(selectedPosition)
         }
     }
 
-    override fun getItemCount(): Int = items.size
-
-
-    class ViewHolder(binding: TrendingItemBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        val cardView = binding.cvTrending
-        val image = binding.itemImage
-        val title = binding.itemTitle
-        val subtitle = binding.itemSubtitle
-    }
+    override fun getItemCount() = items.size
 }
