@@ -68,9 +68,8 @@ class HomeFragment : Fragment() {
         binding.rvTrending.layoutManager =
             GridLayoutManager(requireContext(), 2, GridLayoutManager.HORIZONTAL, false)
 
+//        Incomplete on click event
         binding.rvTrending.adapter = TrendingAdapter(trendingItemList) { clickedItem ->
-            // In a real app, you'd use a ViewModel or Interface to update the MainActivity's playbar
-            // For now, we'll keep it simple.
         }
     }
 }

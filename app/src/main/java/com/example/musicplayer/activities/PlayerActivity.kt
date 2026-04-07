@@ -16,7 +16,6 @@ class PlayerActivity : AppCompatActivity() {
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Change the status bar color to match the player screen theme
         window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
         // Receive data passed from the previous screen
@@ -29,12 +28,11 @@ class PlayerActivity : AppCompatActivity() {
         binding.playerSubtitle.text = subtitle
         binding.playerImage.setImageResource(imageRes)
 
-        // Close button simply finishes this activity and returns to previous screen
         binding.btnClose.setOnClickListener {
             finish()
         }
 
-        // Toggle play/pause state and update UI
+        // Toggle play/pause state
         binding.ivPlayPause.setOnClickListener {
             if (isPlaying) {
                 binding.ivPlayPause.setImageResource(R.drawable.ic_playcapital)

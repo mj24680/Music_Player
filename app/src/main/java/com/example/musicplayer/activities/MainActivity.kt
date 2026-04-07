@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateNavigationState(selected: String) {
-        val selectedBg = Color.parseColor("#111017")
+        val selectedBg = Color.parseColor("#191320")
         val defaultBg = Color.parseColor("#2A1A3A")
         val selectedTint = Color.parseColor("#F44BF8")
         val defaultTint = Color.WHITE

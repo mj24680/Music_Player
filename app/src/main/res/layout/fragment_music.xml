@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/transparent"
     tools:context=".fragments.MusicFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Music Fragment"
-        android:textColor="@color/white"
-        android:textSize="24sp" />
+   <androidx.recyclerview.widget.RecyclerView
+       android:id="@+id/rv_musics"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:layout_margin="@dimen/_5sdp"
+       app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintBottom_toBottomOf="parent"
+       />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
