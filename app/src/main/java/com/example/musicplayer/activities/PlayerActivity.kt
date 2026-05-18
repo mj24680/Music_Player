@@ -4,6 +4,8 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.fragments.MusicFragment
@@ -16,9 +18,8 @@ class PlayerActivity : AppCompatActivity() {
         var musicPosition : Int = 0
         var mediaPlayer : MediaPlayer ?= null
     }
-
     private lateinit var binding: ActivityPlayerBinding
-    private var isPlaying = true
+    private var isPlaying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,63 +28,70 @@ class PlayerActivity : AppCompatActivity() {
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
+        initializeLayout()
+
+        binding.ivPlayPause.setOnClickListener {
+            if(isPlaying){
+                pauseMusic()
+            }else{
+                playMusic()
+            }
+        }
+
+        binding.btnClose.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun initializeLayout() {
         musicPosition = intent.getIntExtra("index", 0)
 
         when(intent.getStringExtra("class")){
             "MusicAdapter" -> {
                 musicListPA = ArrayList()
                 musicListPA.addAll(MusicFragment.MusicListMF)
-
-                // to play an audio file, there is a class call media player in android
-                if(mediaPlayer == null){
-                    mediaPlayer = MediaPlayer()
-                }
-                mediaPlayer!!.reset() // if media player playing a song, it is important to reset it
-                mediaPlayer!!.setDataSource(musicListPA[musicPosition].path)
-                mediaPlayer!!.prepare()
-                mediaPlayer!!.start()
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-        // Receive data passed from the previous screen
-        val title = intent.getStringExtra("itemTitle")
-        val subtitle = intent.getStringExtra("itemSubtitle")
-        val imageRes = intent.getIntExtra("itemImage", 0)
-
-        // Set the received data to the views
-        binding.playerTitle.text = title
-        binding.playerSubtitle.text = subtitle
-        if (imageRes == 0) {
-            binding.playerImage.setImageResource(R.drawable.ic_music_default)
-        } else {
-            binding.playerImage.setImageResource(imageRes)
-        }
-
-
-        binding.btnClose.setOnClickListener {
-            finish()
-        }
-
-        // Toggle play/pause state
-        binding.ivPlayPause.setOnClickListener {
-            if (isPlaying) {
-                binding.ivPlayPause.setImageResource(R.drawable.ic_playcapital)
-                isPlaying = false
-            } else {
-                binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
-                isPlaying = true
+                setLayout()
+                createMediaPlayer()
             }
         }
     }
+
+    private fun setLayout(){
+        Glide.with(this)
+            .load(musicListPA[musicPosition].imgUri)
+            .apply(RequestOptions().placeholder(R.drawable.ic_music_default))
+            .into(binding.PAMusicImage)
+
+        binding.PAMusicName.text = musicListPA[musicPosition].title
+    }
+
+    private fun createMediaPlayer(){
+        // to play an audio file, there is a class call media player in android
+        try {
+            if(mediaPlayer == null){
+                mediaPlayer = MediaPlayer()
+            }
+            mediaPlayer!!.reset() // if media player playing a song, it is important to reset it
+            mediaPlayer!!.setDataSource(musicListPA[musicPosition].path)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+            isPlaying = true
+            binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
+        }catch (e: Exception){
+            return
+        }
+    }
+
+    private fun playMusic(){
+        binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
+        isPlaying = true
+        mediaPlayer!!.start()
+    }
+
+    private fun pauseMusic(){
+        binding.ivPlayPause.setImageResource(R.drawable.ic_play_capital)
+        isPlaying = false
+        mediaPlayer!!.pause()
+    }
+
 }

@@ -74,7 +74,7 @@
         >
 
         <ImageView
-            android:id="@+id/playerImage"
+            android:id="@+id/PAMusicImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/ic_music_default"
@@ -96,12 +96,15 @@
         app:layout_constraintTop_toBottomOf="@+id/cv_musicIcon">
 
         <TextView
-            android:id="@+id/playerTitle"
-            android:layout_width="wrap_content"
+            android:id="@+id/PAMusicName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ghost - Axe Ross"
             android:textColor="@color/white"
-            android:textSize="@dimen/_20ssp" />
+            android:textSize="@dimen/_20ssp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            />
 
         <TextView
             android:id="@+id/playerSubtitle"
@@ -141,23 +144,24 @@
 
         <ImageView
             android:id="@+id/ivPrevious"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_35sdp"
             android:layout_weight="1"
             android:src="@drawable/ic_previous" />
 
         <ImageView
             android:id="@+id/ivPlayPause"
-            android:layout_width="@dimen/_65sdp"
-            android:layout_height="@dimen/_65sdp"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
             android:layout_weight="1"
             android:src="@drawable/ic_pause"
+            android:scaleType="fitCenter"
             />
 
         <ImageView
             android:id="@+id/ivNext"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_35sdp"
             android:layout_weight="1"
             android:src="@drawable/ic_next" />
 

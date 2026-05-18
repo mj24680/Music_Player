@@ -45,13 +45,13 @@ class TrendingAdapter(
                 onItemClicked(item)
 
                 // Open PlayerActivity
-                val context = root.context
-                val intent = Intent(context, PlayerActivity::class.java).apply {
-                    putExtra("itemTitle", item.title)
-                    putExtra("itemSubtitle", item.subtitle)
-                    putExtra("itemImage", item.imageRes)
-                }
-                context.startActivity(intent)
+//                val context = root.context
+//                val intent = Intent(context, PlayerActivity::class.java).apply {
+//                    putExtra("itemTitle", item.title)
+//                    putExtra("itemSubtitle", item.subtitle)
+//                    putExtra("itemImage", item.imageRes)
+//                }
+//                context.startActivity(intent)
 
                 // Update selected item highlighting
                 val oldPosition = selectedPosition
