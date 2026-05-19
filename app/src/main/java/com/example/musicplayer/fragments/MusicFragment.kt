@@ -49,8 +49,12 @@ class MusicFragment : Fragment() {
 
         // cursor helps us to fetch music from storage, we need to tell cursor which type and in which order we want data
 
-        val selection =
-            MediaStore.Audio.Media.IS_MUSIC + "!=0" // it tells cursor, which type of file we want
+        val selection = """
+            ${MediaStore.Audio.Media.IS_MUSIC} != 0
+            AND ${MediaStore.Audio.Media.RELATIVE_PATH} NOT LIKE '%WhatsApp%'
+            AND ${MediaStore.Audio.Media.RELATIVE_PATH} NOT LIKE '%whatsapp%'
+            """.trimIndent()
+
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
@@ -107,8 +111,6 @@ class MusicFragment : Fragment() {
                 cursor.close()
             }
         }
-
-
         return tempList
     }
 }

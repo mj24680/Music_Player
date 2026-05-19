@@ -10,14 +10,16 @@ import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.fragments.MusicFragment
 import com.example.musicplayer.models.Music
+import kotlin.math.sign
 
 class PlayerActivity : AppCompatActivity() {
 
-    companion object{
-        lateinit var musicListPA : ArrayList<Music>
-        var musicPosition : Int = 0
-        var mediaPlayer : MediaPlayer ?= null
+    companion object {
+        lateinit var musicListPA: ArrayList<Music>
+        var musicPosition: Int = 0
+        var mediaPlayer: MediaPlayer? = null
     }
+
     private lateinit var binding: ActivityPlayerBinding
     private var isPlaying = false
 
@@ -31,12 +33,16 @@ class PlayerActivity : AppCompatActivity() {
         initializeLayout()
 
         binding.ivPlayPause.setOnClickListener {
-            if(isPlaying){
+            if (isPlaying) {
                 pauseMusic()
-            }else{
+            } else {
                 playMusic()
             }
         }
+
+        binding.ivPrevious.setOnClickListener { prevNextSong(false) }
+
+        binding.ivNext.setOnClickListener { prevNextSong(true) }
 
         binding.btnClose.setOnClickListener {
             finish()
@@ -46,7 +52,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun initializeLayout() {
         musicPosition = intent.getIntExtra("index", 0)
 
-        when(intent.getStringExtra("class")){
+        when (intent.getStringExtra("class")) {
             "MusicAdapter" -> {
                 musicListPA = ArrayList()
                 musicListPA.addAll(MusicFragment.MusicListMF)
@@ -56,7 +62,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun setLayout(){
+    private fun setLayout() {
         Glide.with(this)
             .load(musicListPA[musicPosition].imgUri)
             .apply(RequestOptions().placeholder(R.drawable.ic_music_default))
@@ -65,10 +71,10 @@ class PlayerActivity : AppCompatActivity() {
         binding.PAMusicName.text = musicListPA[musicPosition].title
     }
 
-    private fun createMediaPlayer(){
+    private fun createMediaPlayer() {
         // to play an audio file, there is a class call media player in android
         try {
-            if(mediaPlayer == null){
+            if (mediaPlayer == null) {
                 mediaPlayer = MediaPlayer()
             }
             mediaPlayer!!.reset() // if media player playing a song, it is important to reset it
@@ -77,21 +83,49 @@ class PlayerActivity : AppCompatActivity() {
             mediaPlayer!!.start()
             isPlaying = true
             binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return
         }
     }
 
-    private fun playMusic(){
+    private fun playMusic() {
         binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
         isPlaying = true
         mediaPlayer!!.start()
     }
 
-    private fun pauseMusic(){
+    private fun pauseMusic() {
         binding.ivPlayPause.setImageResource(R.drawable.ic_play_capital)
         isPlaying = false
         mediaPlayer!!.pause()
+    }
+
+    private fun prevNextSong(increment: Boolean) {
+        if (increment) {
+            setSongPosition(true)
+            setLayout()
+            createMediaPlayer()
+        } else {
+            setSongPosition(false)
+            setLayout()
+            createMediaPlayer()
+        }
+    }
+
+    private fun setSongPosition(increment: Boolean){
+        if(increment){
+            if(musicListPA.size - 1 == musicPosition){
+                musicPosition = 0
+            }else{
+                ++musicPosition
+            }
+        }else{
+            if(musicPosition == 0){
+                musicPosition = musicListPA.size - 1
+            }else{
+                --musicPosition
+            }
+        }
     }
 
 }
