@@ -19,11 +19,19 @@ import com.example.musicplayer.fragments.PlaylistFragment
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
+    private lateinit var homeFragment: HomeFragment
+    private lateinit var musicFragment: MusicFragment
+    private lateinit var playlistFragment: PlaylistFragment
+
+    private var activeFragment: Fragment? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupFragments()
 
         requestPermission()
 
@@ -33,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         // Show Home Fragment by default when app starts
         if (savedInstanceState == null) {
-            replaceFragment(HomeFragment())
+            switchFragment(homeFragment)
         }
     }
 
@@ -44,7 +52,11 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
 
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                permission
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(this, arrayOf(permission), 10)
         }
     }
@@ -68,17 +80,17 @@ class MainActivity : AppCompatActivity() {
 
         binding.cvHome.setOnClickListener {
             updateNavigationState("home")
-            replaceFragment(HomeFragment())
+            switchFragment(homeFragment)
         }
 
         binding.cvMusic.setOnClickListener {
             updateNavigationState("music")
-            replaceFragment(MusicFragment())
+            switchFragment(musicFragment)
         }
 
         binding.cvPlaylists.setOnClickListener {
             updateNavigationState("playlists")
-            replaceFragment(PlaylistFragment())
+            switchFragment(playlistFragment)
         }
     }
 
@@ -106,11 +118,13 @@ class MainActivity : AppCompatActivity() {
                 binding.cvHome.setCardBackgroundColor(selectedBg)
                 binding.ivHome.setColorFilter(selectedTint)
             }
+
             "music" -> {
                 binding.cvMusic.setCardBackgroundColor(selectedBg)
                 binding.ivMusicBtn.setColorFilter(selectedTint)
                 binding.tvMusicBtn.setTextColor(selectedTint)
             }
+
             "playlists" -> {
                 binding.cvPlaylists.setCardBackgroundColor(selectedBg)
                 binding.ivPlaylistsBtn.setColorFilter(selectedTint)
@@ -119,10 +133,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.fl_navigation, fragment)
-        fragmentTransaction.commit()
+    private fun setupFragments() {
+        homeFragment = HomeFragment()
+        musicFragment = MusicFragment()
+        playlistFragment = PlaylistFragment()
+
+        activeFragment = homeFragment
+
+        supportFragmentManager.beginTransaction().add(R.id.fl_navigation, homeFragment, "HOME")
+            .add(R.id.fl_navigation, musicFragment, "MUSIC").hide(musicFragment)
+            .add(R.id.fl_navigation, playlistFragment, "PLAYLIST").hide(playlistFragment).commit()
     }
+
+    private fun switchFragment(target: Fragment) {
+        if (activeFragment == target) return
+
+        activeFragment?.let { current ->
+            supportFragmentManager.beginTransaction().setCustomAnimations(
+                android.R.anim.fade_in, android.R.anim.fade_out
+            ).hide(current).show(target).commit()
+        }
+        activeFragment = target
+    }
+
+    override fun onBackPressed() {
+        if (activeFragment != homeFragment) {
+            activeFragment = homeFragment
+        } else {
+            super.onBackPressed()
+        }
+    }
+
 }
