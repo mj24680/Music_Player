@@ -17,10 +17,10 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.MusicPlayer">
         <activity
-            android:name=".activities.PlayerActivity"
+            android:name=".ui.activities.PlayerActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

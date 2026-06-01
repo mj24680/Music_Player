@@ -2,11 +2,17 @@ package com.example.musicplayer.models
 
 import java.util.concurrent.TimeUnit
 
-data class Music (val id : String, val title : String, val album : String, val artist : String,
-                  val duration : Long = 0, val path : String, val imgUri : String)
+data class Music(
+    val id: String,
+    val title: String,
+    val album: String,
+    val artist: String,
+    val duration: Long = 0,
+    val path: String,
+    val imgUri: String
+)
 
-
-fun formatDuration(duration : Long) : String{
+fun formatDuration(duration: Long): String {
     val minutes = TimeUnit.MINUTES.convert(duration, TimeUnit.MILLISECONDS)
     val seconds = (TimeUnit.SECONDS.convert(duration, TimeUnit.MILLISECONDS) -
             minutes * TimeUnit.SECONDS.convert(1, TimeUnit.MINUTES))
