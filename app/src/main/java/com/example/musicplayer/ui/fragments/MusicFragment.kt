@@ -57,7 +57,7 @@ class MusicFragment : Fragment() {
 
     private fun observeViewModels() {
 
-        // 1. Permission observer (MainViewModel)
+        // Permission observer (MainViewModel)
         mainViewModel.audioPermissionGranted.observe(viewLifecycleOwner) { granted ->
 
             if (granted == true) {
@@ -65,7 +65,7 @@ class MusicFragment : Fragment() {
             }
         }
 
-        // 2. Music list observer (MusicViewModel)
+        // Music list observer (MusicViewModel)
         musicViewModel.musicList.observe(viewLifecycleOwner) { songs ->
 
             MusicListMF = ArrayList()
