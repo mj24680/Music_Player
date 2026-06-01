@@ -44,9 +44,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginTop="5dp"
-            android:text="Morning,"
+            android:text="Hey,"
             android:textColor="#9E9E9E"
             android:textSize="@dimen/_14ssp"
+            android:fontFamily="@font/montserrat"
             app:layout_constraintStart_toEndOf="@id/profileCard"
             app:layout_constraintTop_toTopOf="@id/profileCard" />
 
@@ -55,18 +56,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="_Rexo"
+            android:text="Listner"
             android:textColor="#FFFFFF"
+            android:fontFamily="@font/montserrat"
             android:textSize="@dimen/_20ssp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/tvMorning"
             app:layout_constraintTop_toBottomOf="@id/tvMorning" />
 
         <ImageView
-            android:id="@+id/searchIcon"
+            android:id="@+id/ic_shuffle"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:src="@drawable/ic_search"
+            android:src="@drawable/ic_shuffle"
             app:layout_constraintBottom_toBottomOf="@id/profileCard"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/profileCard" />
@@ -95,8 +97,8 @@
 
             <ImageView
                 android:id="@+id/iv_home"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_home"
                 app:tint="@color/white" />
@@ -122,17 +124,19 @@
                     android:id="@+id/iv_music_btn"
                     android:layout_width="@dimen/_18sdp"
                     android:layout_height="@dimen/_18sdp"
-                    android:src="@drawable/ic_play"
+                    android:src="@drawable/ic_music"
                     app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tv_music_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:fontFamily="@font/montserrat"
                     android:text="Music"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_12ssp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
@@ -163,7 +167,9 @@
                     android:id="@+id/tv_playlists_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:fontFamily="@font/montserrat"
+                    android:textStyle="bold"
                     android:text="Playlists"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp" />
@@ -235,6 +241,7 @@
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                android:fontFamily="@font/montserrat"
                 app:layout_constraintBottom_toTopOf="@+id/tv_playbar_subtitle"
                 app:layout_constraintEnd_toStartOf="@+id/iv_playbar_pause"
                 app:layout_constraintHorizontal_bias="0"
@@ -249,6 +256,7 @@
                 android:text="Justin Bieber"
                 android:textColor="#888888"
                 android:textSize="14sp"
+                android:fontFamily="@font/montserrat"
                 app:layout_constraintBottom_toTopOf="@+id/pb_playbar"
                 app:layout_constraintEnd_toEndOf="@+id/tv_playbar_title"
                 app:layout_constraintStart_toStartOf="@+id/tv_playbar_title"

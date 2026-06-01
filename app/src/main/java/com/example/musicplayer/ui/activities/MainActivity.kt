@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -31,8 +32,8 @@ class MainActivity : AppCompatActivity() {
 
     // request permission from the user -> waits for the user answer -> executes code after the answer arrives
     private val permissionLauncher =
-        // registerForActivityResult -> for permissions, picking images, opening files, camera results
-        // ActivityResultContracts.RequestPermission() -> I want to request One Permission
+    // registerForActivityResult -> for permissions, picking images, opening files, camera results
+    // ActivityResultContracts.RequestPermission() -> I want to request One Permission
         // android provides different contracts -> GetContent() for file pick, TakePicture() for open camera
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             viewModel.onAudioPermissionResult(granted)
@@ -62,6 +63,13 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             viewModel.selectTab(NavItems.HOME)
+        }
+
+        binding.icShuffle.setOnClickListener {
+            val intent = Intent(this@MainActivity, PlayerActivity::class.java)
+            intent.putExtra("index", 0)
+            intent.putExtra("class", "MainActivity")
+            startActivity(intent)
         }
     }
 

@@ -49,6 +49,14 @@ class PlayerActivity : AppCompatActivity() {
                 setLayout()
                 createMediaPlayer()
             }
+
+            "MainActivity" -> {
+                musicListPA = ArrayList()
+                musicListPA.addAll(MusicFragment.MusicListMF)
+                musicListPA.shuffle()
+                setLayout()
+                createMediaPlayer()
+            }
         }
     }
 
@@ -117,28 +125,28 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun preNextSong(increment: Boolean) { // increment -> if true then play next if false play previous
-        if(increment){
+        if (increment) {
             setSongPosition(true)
             setLayout()
             createMediaPlayer()
-        }else{
+        } else {
             setSongPosition(false)
             setLayout()
             createMediaPlayer()
         }
     }
 
-    private fun setSongPosition(increment: Boolean){ // for first and end song
-        if(increment){
-            if(musicListPA.size - 1 == songPosition){
+    private fun setSongPosition(increment: Boolean) { // for first and end song
+        if (increment) {
+            if (musicListPA.size - 1 == songPosition) {
                 songPosition = 0
-            }else{
+            } else {
                 ++songPosition
             }
-        }else{
-            if(0 == songPosition){
+        } else {
+            if (0 == songPosition) {
                 songPosition = musicListPA.size - 1
-            }else{
+            } else {
                 --songPosition
             }
         }

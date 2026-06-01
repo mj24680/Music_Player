@@ -99,13 +99,18 @@
             android:layout_height="wrap_content"
             android:text="Ghost - Axe Ross"
             android:textColor="@color/white"
-            android:textSize="@dimen/_20ssp" />
+            android:textSize="@dimen/_20ssp"
+            android:fontFamily="@font/montserrat"
+            android:maxLines="2"
+            android:ellipsize="end"
+            />
 
         <TextView
             android:id="@+id/playerSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Justin Bieber"
+            android:fontFamily="@font/montserrat"
             android:textSize="@dimen/_12ssp" />
 
         <ProgressBar
@@ -122,6 +127,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="17:00 Mins Left"
+            android:fontFamily="@font/montserrat"
             android:textColor="@color/white" />
 
     </LinearLayout>
@@ -146,8 +152,8 @@
 
         <ImageView
             android:id="@+id/ivPlayPause"
-            android:layout_width="@dimen/_65sdp"
-            android:layout_height="@dimen/_65sdp"
+            android:layout_width="@dimen/_55sdp"
+            android:layout_height="@dimen/_55sdp"
             android:layout_weight="1"
             android:src="@drawable/ic_pause"
             />
