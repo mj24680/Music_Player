@@ -113,22 +113,37 @@
             android:fontFamily="@font/montserrat"
             android:textSize="@dimen/_12ssp" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_8sdp"
             android:progress="30"
-            android:progressBackgroundTint="#33FFFFFF"
             android:progressTint="#F44BF8" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="17:00 Mins Left"
-            android:fontFamily="@font/montserrat"
-            android:textColor="@color/white" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_seekBarStart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="17:00"
+                android:fontFamily="@font/montserrat"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/tv_seekBarEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="17:00"
+                android:fontFamily="@font/montserrat"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -9,12 +9,15 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.musicplayer.ApplicationClass
 import com.example.musicplayer.NotificationReceiver
 import com.example.musicplayer.R
+import com.example.musicplayer.models.formatDuration
 import com.example.musicplayer.ui.activities.PlayerActivity
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.binding
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicListPA
@@ -26,6 +29,9 @@ class MusicService : Service() {
     private var myBinder = MyBinder()
     var mediaPlayer: MediaPlayer? = null
     private lateinit var mediaSession: MediaSessionCompat
+
+    // helps use to run same code repeatedly
+    private lateinit var runnable: Runnable
 
     // this method call, when we bind service with activity
     override fun onBind(intent: Intent?): IBinder? {
@@ -97,8 +103,23 @@ class MusicService : Service() {
             binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
             musicService!!.showNotification("Pause")
 
+            // because when click on next button in notification new song plays and seekbar still on previous song position
+            binding.tvSeekBarStart.text = formatDuration(mediaPlayer!!.currentPosition.toLong())
+            binding.tvSeekBarEnd.text = formatDuration(mediaPlayer!!.duration.toLong())
+
+            binding.seekBar.max = musicService!!.mediaPlayer!!.duration
+
         } catch (e: Exception) {
             return
         }
+    }
+
+    fun seekBarSetup(){
+        runnable = Runnable{
+            binding.tvSeekBarStart.text = formatDuration(mediaPlayer!!.currentPosition.toLong())
+            binding.seekBar.progress = mediaPlayer!!.currentPosition
+            Handler(Looper.getMainLooper()).postDelayed(runnable, 200) // yh code kitny time bad dubara re-run hona chahiye
+        }
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 0)
     }
 }
