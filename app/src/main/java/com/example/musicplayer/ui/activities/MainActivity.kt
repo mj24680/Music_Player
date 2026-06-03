@@ -1,16 +1,16 @@
 package com.example.musicplayer.ui.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.musicplayer.R
-import com.example.musicplayer.core.PermissionManager
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.navigation.NavItems
 import com.example.musicplayer.ui.fragments.HomeFragment
@@ -31,19 +31,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var playlistFragment: PlaylistFragment
 
     // request permission from the user -> waits for the user answer -> executes code after the answer arrives
-    private val permissionLauncher =
+    private val audioPermissionLauncher =
     // registerForActivityResult -> for permissions, picking images, opening files, camera results
     // ActivityResultContracts.RequestPermission() -> I want to request One Permission
         // android provides different contracts -> GetContent() for file pick, TakePicture() for open camera
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            viewModel.onAudioPermissionResult(granted)
+            viewModel.updateAudioPermissionStatus(granted)
+        }
 
-            Toast.makeText(
-                this,
-                if (granted) "Permission Granted"
-                else "Permission is required to load music",
-                Toast.LENGTH_SHORT
-            ).show()
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            viewModel.updateNotificationPermissionStatus(granted)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         observeViewModel()
         requestAudioPermission()
+        requestNotificationPermission()
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
@@ -71,6 +70,16 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("class", "MainActivity")
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val audioGranted = isAudioPermissionGranted()
+        val notificationGranted = isNotificationPermissionGranted()
+
+        viewModel.updateAudioPermissionStatus(audioGranted)
+        viewModel.updateNotificationPermissionStatus(notificationGranted)
     }
 
     private fun setupFragments() {
@@ -93,7 +102,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.fragments.forEach {
                 hide(it)
             }
-
             show(fragment)
             commit()
         }
@@ -129,16 +137,55 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun isAudioPermissionGranted(): Boolean {
+        val permission =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_AUDIO
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isNotificationPermissionGranted(): Boolean {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return true
+        }
+        val permission = Manifest.permission.POST_NOTIFICATIONS
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
     private fun requestAudioPermission() {
 
-        val permission = PermissionManager.audioPermission()
-
-        if (PermissionManager.hasAudioPermission(this)) {
-            viewModel.onAudioPermissionAlreadyGranted()
+        if (isAudioPermissionGranted()) {
+            viewModel.updateAudioPermissionStatus(true)
             return
         }
 
-        permissionLauncher.launch(permission)
+        val permission =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_AUDIO
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+
+        audioPermissionLauncher.launch(permission)
+    }
+
+    private fun requestNotificationPermission() {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+        if (isNotificationPermissionGranted()) {
+            viewModel.updateNotificationPermissionStatus(true)
+            return
+        }
+
+        notificationPermissionLauncher.launch(
+            Manifest.permission.POST_NOTIFICATIONS
+        )
     }
 
     override fun onBackPressed() {

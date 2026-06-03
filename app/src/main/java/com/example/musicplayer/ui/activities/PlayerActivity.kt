@@ -1,9 +1,13 @@
 package com.example.musicplayer.ui.activities
 
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -12,26 +16,37 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.models.Music
+import com.example.musicplayer.models.setSongPosition
+import com.example.musicplayer.services.MusicService
 import com.example.musicplayer.ui.fragments.MusicFragment
 import com.example.musicplayer.viewmodel.MusicViewModel
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : AppCompatActivity(), ServiceConnection {
 
     // access without creating an object
     // class level (static like) variables and functions
     companion object {
         lateinit var musicListPA: ArrayList<Music> // mutable
         var songPosition: Int = 0
-        var mediaPlayer: MediaPlayer? = null
+        // var mediaPlayer: MediaPlayer? = null
         var isPlaying: Boolean = false
+
+        var musicService : MusicService? = null
+
+        lateinit var binding: ActivityPlayerBinding
     }
 
-    private lateinit var binding: ActivityPlayerBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // for starting service
+        val intent = Intent(this, MusicService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+        bindService(intent, this, BIND_AUTO_CREATE)
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
@@ -47,7 +62,7 @@ class PlayerActivity : AppCompatActivity() {
                 musicListPA = ArrayList()
                 musicListPA.addAll(MusicFragment.MusicListMF)
                 setLayout()
-                createMediaPlayer()
+                // createMediaPlayer()
             }
 
             "MainActivity" -> {
@@ -55,7 +70,7 @@ class PlayerActivity : AppCompatActivity() {
                 musicListPA.addAll(MusicFragment.MusicListMF)
                 musicListPA.shuffle()
                 setLayout()
-                createMediaPlayer()
+                // createMediaPlayer()
             }
         }
     }
@@ -63,7 +78,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun setLayout() {
         Glide.with(this)
             .load(musicListPA[songPosition].imgUri)
-            .apply(RequestOptions().placeholder(R.drawable.ic_music_default))
+            .apply(RequestOptions().placeholder(R.drawable.ic_music_default)).centerCrop()
             .into(binding.playerImage)
         binding.playerTitle.text = musicListPA[songPosition].title
         binding.playerSubtitle.text = musicListPA[songPosition].artist
@@ -72,11 +87,11 @@ class PlayerActivity : AppCompatActivity() {
     private fun createMediaPlayer() {
         try {
             // MediaPlayer Class in android -> to play music
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer()
+            if (musicService!!.mediaPlayer == null) {
+                musicService!!.mediaPlayer = MediaPlayer()
             }
 
-            mediaPlayer!!.apply {
+            musicService!!.mediaPlayer!!.apply {
                 reset() // currently song is playing, need to reset first
                 setDataSource(musicListPA[songPosition].path)
                 prepare()
@@ -84,6 +99,7 @@ class PlayerActivity : AppCompatActivity() {
             }
             isPlaying = true
             binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
+            musicService!!.showNotification("Pause")
 
         } catch (e: Exception) {
             return
@@ -114,14 +130,16 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun playMusic() {
         binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
+        musicService!!.showNotification("Pause")
         isPlaying = true
-        mediaPlayer!!.start()
+        musicService!!.mediaPlayer!!.start()
     }
 
     private fun pauseMusic() {
         binding.ivPlayPause.setImageResource(R.drawable.ic_play)
+        musicService!!.showNotification("Play")
         isPlaying = false
-        mediaPlayer!!.pause()
+        musicService!!.mediaPlayer!!.pause()
     }
 
     private fun preNextSong(increment: Boolean) { // increment -> if true then play next if false play previous
@@ -136,21 +154,17 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun setSongPosition(increment: Boolean) { // for first and end song
-        if (increment) {
-            if (musicListPA.size - 1 == songPosition) {
-                songPosition = 0
-            } else {
-                ++songPosition
-            }
-        } else {
-            if (0 == songPosition) {
-                songPosition = musicListPA.size - 1
-            } else {
-                --songPosition
-            }
-        }
+    override fun onServiceConnected(
+        name: ComponentName?,
+        service: IBinder?
+    ) {
+        val binder = service as MusicService.MyBinder
+        musicService = binder.currentService()
+        createMediaPlayer()
+
     }
 
-
+    override fun onServiceDisconnected(name: ComponentName?) {
+        musicService = null
+    }
 }

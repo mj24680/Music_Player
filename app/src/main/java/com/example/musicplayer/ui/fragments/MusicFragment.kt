@@ -15,8 +15,8 @@ import com.example.musicplayer.viewmodel.MusicViewModel
 
 class MusicFragment : Fragment() {
 
-    companion object{
-        lateinit var MusicListMF : ArrayList<Music>
+    companion object {
+        lateinit var MusicListMF: ArrayList<Music>
     }
 
     private lateinit var binding: FragmentMusicBinding

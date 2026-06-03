@@ -10,8 +10,11 @@ class MainViewModel : ViewModel() {
     private val _selectedTab = MutableLiveData<NavItems>()
     val selectedTab: LiveData<NavItems> = _selectedTab
 
-    private val _audioPermissionGranted = MutableLiveData<Boolean>()
-    val audioPermissionGranted: LiveData<Boolean> = _audioPermissionGranted
+    private val _isAudioPermissionGranted = MutableLiveData<Boolean>()
+    val audioPermissionGranted: LiveData<Boolean> = _isAudioPermissionGranted
+
+    private val _isNotificationPermissionGranted = MutableLiveData<Boolean>()
+    val isNotificationPermissionGranted: LiveData<Boolean> = _isNotificationPermissionGranted
 
     init {
         _selectedTab.value = NavItems.HOME
@@ -21,11 +24,11 @@ class MainViewModel : ViewModel() {
         _selectedTab.value = tab
     }
 
-    fun onAudioPermissionAlreadyGranted() {
-        _audioPermissionGranted.value = true
+    fun updateAudioPermissionStatus(isGranted: Boolean) {
+        _isAudioPermissionGranted.value = isGranted
     }
 
-    fun onAudioPermissionResult(granted: Boolean) {
-        _audioPermissionGranted.value = granted
+    fun updateNotificationPermissionStatus(isGranted: Boolean) {
+        _isNotificationPermissionGranted.value = isGranted
     }
 }
