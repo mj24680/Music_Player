@@ -18,6 +18,7 @@ import com.example.musicplayer.ui.fragments.MusicFragment
 import com.example.musicplayer.ui.fragments.PlaylistFragment
 import com.example.musicplayer.utils.NavigationUIController
 import com.example.musicplayer.viewmodel.MainViewModel
+import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
 
@@ -193,6 +194,16 @@ class MainActivity : AppCompatActivity() {
             viewModel.selectTab(NavItems.HOME)
         } else {
             super.onBackPressed()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(!PlayerActivity.isPlaying && PlayerActivity.musicService != null){
+            PlayerActivity.musicService!!.stopForeground(true)
+            PlayerActivity.musicService!!.mediaPlayer!!.release()
+            PlayerActivity.musicService = null
+            exitProcess(1)
         }
     }
 }

@@ -6,9 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -37,6 +39,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         var musicService: MusicService? = null
 
         lateinit var binding: ActivityPlayerBinding
+
+        var repeat: Boolean = false
     }
 
 
@@ -56,7 +60,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         setupClickListeners()
 
-        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.seekBar.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener { // this call immediately, when user click on seekBar
             override fun onProgressChanged(
                 seekBar: SeekBar?,
                 progress: Int,
@@ -70,7 +75,33 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) =
                 Unit  // and this calls, when user leave click
-        }) // this call immediately, when user click on seekBar
+        })
+
+        binding.ivRepeat.setOnClickListener {
+            if (!repeat) {
+                repeat = true
+                binding.ivRepeat.setColorFilter(
+                    ContextCompat.getColor(
+                        this,
+                        R.color.nav_selected_tint
+                    )
+                )
+                Toast.makeText(this, "Repeat Enabled", Toast.LENGTH_SHORT).show()
+            } else {
+                repeat = false
+                binding.ivRepeat.setColorFilter(ContextCompat.getColor(this, R.color.white))
+                Toast.makeText(this, "Repeat Disabled", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.ivShare.setOnClickListener {
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.type = "audio/*"
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(musicListPA[songPosition].path))
+            startActivity(Intent.createChooser(shareIntent, "Sharing Music File"))
+        }
+
     }
 
     private fun initializeLayout() {
@@ -100,6 +131,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             .into(binding.playerImage)
         binding.playerTitle.text = musicListPA[songPosition].title
         binding.playerSubtitle.text = musicListPA[songPosition].artist
+
+        if (repeat) binding.ivRepeat.setColorFilter(
+            ContextCompat.getColor(
+                this,
+                R.color.nav_selected_tint
+            )
+        )
     }
 
     private fun createMediaPlayer() {
@@ -119,10 +157,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
             musicService!!.showNotification("Pause")
             // music current and end time
-            binding.tvSeekBarStart.text =
-                formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
-            binding.tvSeekBarEnd.text =
-                formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+            binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+            binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
             binding.seekBar.progress = 0 // initial 0
             binding.seekBar.max = musicService!!.mediaPlayer!!.duration
             musicService!!.mediaPlayer!!.setOnCompletionListener(this)
@@ -195,12 +231,15 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
-        setSongPosition(increment = true)
-        createMediaPlayer()
-        try {
+        if (repeat) {
+            // Just restart the current song
+            createMediaPlayer()
             setLayout()
-        } catch (e: Exception) {
-            return
+        } else {
+            // Normal behavior: Go to next song
+            setSongPosition(increment = true)
+            createMediaPlayer()
+            setLayout()
         }
     }
 }

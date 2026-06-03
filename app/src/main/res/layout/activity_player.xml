@@ -32,6 +32,15 @@
             android:orientation="horizontal"
             android:gravity="end"
             >
+
+            <ImageView
+                android:id="@+id/iv_repeat"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:src="@drawable/ic_repeat"
+                android:layout_marginEnd="@dimen/_18sdp"
+                />
+
             <ImageView
                 android:layout_width="@dimen/_25sdp"
                 android:layout_height="@dimen/_25sdp"
@@ -39,14 +48,15 @@
                 android:layout_marginEnd="@dimen/_18sdp"
                 />
 
-            <ImageView
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
-                android:src="@drawable/ic_add"
-                android:layout_marginEnd="@dimen/_18sdp"
-                />
+<!--            <ImageView-->
+<!--                android:layout_width="@dimen/_25sdp"-->
+<!--                android:layout_height="@dimen/_25sdp"-->
+<!--                android:src="@drawable/ic_add"-->
+<!--                android:layout_marginEnd="@dimen/_18sdp"-->
+<!--                />-->
 
             <ImageView
+                android:id="@+id/iv_share"
                 android:layout_width="@dimen/_25sdp"
                 android:layout_height="@dimen/_25sdp"
                 android:src="@drawable/ic_share"

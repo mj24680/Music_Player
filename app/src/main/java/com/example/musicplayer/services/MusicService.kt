@@ -63,8 +63,8 @@ class MusicService : Service() {
         val nextIntent = Intent(baseContext, NotificationReceiver::class.java).setAction(ApplicationClass.NEXT)
         val nextPendingIntent = PendingIntent.getBroadcast(baseContext, 2, nextIntent, PendingIntent.FLAG_IMMUTABLE)
 
-        // val exitIntent = Intent(baseContext, NotificationRecevier::class.java).setAction(ApplicationClass.EXIT)
-        // val exitPendingIntent = PendingIntent.getBroadcast(baseContext, 3, exitIntent, PendingIntent.FLAG_IMMUTABLE)
+         val exitIntent = Intent(baseContext, NotificationReceiver::class.java).setAction(ApplicationClass.EXIT)
+         val exitPendingIntent = PendingIntent.getBroadcast(baseContext, 3, exitIntent, PendingIntent.FLAG_IMMUTABLE)
 
 
         val notification = NotificationCompat.Builder(baseContext, ApplicationClass.CHANNEL_ID)
@@ -78,7 +78,7 @@ class MusicService : Service() {
             .addAction(R.drawable.ic_previous, "Previous", previousPendingIntent)
             .addAction(R.drawable.ic_pause, playPauseString, playPendingIntent)
             .addAction(R.drawable.ic_next, "Next", nextPendingIntent)
-            // .addAction(R.drawable.ic_exit, "Exit", exitPendingIntent)
+            .setDeleteIntent(exitPendingIntent) // triggers on swipe
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API LEVEL 34)

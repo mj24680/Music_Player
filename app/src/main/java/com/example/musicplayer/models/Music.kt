@@ -1,5 +1,6 @@
 package com.example.musicplayer.models
 
+import com.example.musicplayer.ui.activities.PlayerActivity
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicListPA
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.songPosition
 import java.util.concurrent.TimeUnit
@@ -23,6 +24,7 @@ fun formatDuration(duration: Long): String {
 }
 
 fun setSongPosition(increment: Boolean) { // for first and end song
+
     if (increment) {
         if (musicListPA.size - 1 == songPosition) {
             songPosition = 0

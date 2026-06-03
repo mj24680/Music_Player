@@ -16,28 +16,38 @@ import kotlin.system.exitProcess
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        when(intent?.action){
+        when (intent?.action) {
             ApplicationClass.PREVIOUS -> preNextSong(false, context!!)
-            ApplicationClass.PLAY -> if(PlayerActivity.isPlaying) pauseMusic() else playMusic()
+            ApplicationClass.PLAY -> if (PlayerActivity.isPlaying) pauseMusic() else playMusic()
             ApplicationClass.NEXT -> preNextSong(true, context!!)
-            // ApplicationClass.EXIT -> exitProcess(1)
+            ApplicationClass.EXIT -> {
+                musicService!!.mediaPlayer!!.pause()
+                PlayerActivity.isPlaying = false
+                // update UI if Player Activity Visible
+                PlayerActivity.binding.ivPlayPause.setImageResource(R.drawable.ic_play)
+                musicService?.stopForeground(true)
+                // musicService?.mediaPlayer?.release()
+                // musicService = null
+                // exitProcess(1)
+            }
         }
     }
 
-    private fun playMusic(){
+    private fun playMusic() {
         PlayerActivity.isPlaying = true
         PlayerActivity.musicService!!.mediaPlayer!!.start()
         PlayerActivity.musicService!!.showNotification("Pause")
         PlayerActivity.binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
     }
-    private fun pauseMusic(){
+
+    private fun pauseMusic() {
         PlayerActivity.isPlaying = false
         PlayerActivity.musicService!!.mediaPlayer!!.pause()
         PlayerActivity.musicService!!.showNotification("Play")
         PlayerActivity.binding.ivPlayPause.setImageResource(R.drawable.ic_play)
     }
 
-    private fun preNextSong(increment: Boolean, context: Context){
+    private fun preNextSong(increment: Boolean, context: Context) {
         setSongPosition(increment = increment)
         musicService!!.createMediaPlayer()
         Glide.with(context)
