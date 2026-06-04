@@ -24,18 +24,18 @@ class NavigationUIController(
 
         when (tab) {
 
-            NavItems.HOME -> {
-                binding.cvHome.setCardBackgroundColor(selectedBg)
-                binding.ivHome.setColorFilter(selectedTint)
+            NavItems.FAVOURITE -> {
+                //binding.cvFvrt.setCardBackgroundColor(selectedBg)
+                binding.ivFvrt.setColorFilter(selectedTint)
             }
 
             NavItems.MUSIC -> {
-                binding.cvMusic.setCardBackgroundColor(selectedBg)
+                //binding.cvMusic.setCardBackgroundColor(selectedBg)
                 binding.ivMusicBtn.setColorFilter(selectedTint)
             }
 
             NavItems.PLAYLIST -> {
-                binding.cvPlaylists.setCardBackgroundColor(selectedBg)
+                //binding.cvPlaylists.setCardBackgroundColor(selectedBg)
                 binding.ivPlaylistsBtn.setColorFilter(selectedTint)
             }
         }
@@ -43,11 +43,11 @@ class NavigationUIController(
 
     private fun reset(bg: Int, tint: Int) {
 
-        binding.cvHome.setCardBackgroundColor(bg)
+        binding.cvFvrt.setCardBackgroundColor(bg)
         binding.cvMusic.setCardBackgroundColor(bg)
         binding.cvPlaylists.setCardBackgroundColor(bg)
 
-        binding.ivHome.setColorFilter(tint)
+        binding.ivFvrt.setColorFilter(tint)
         binding.ivMusicBtn.setColorFilter(tint)
         binding.ivPlaylistsBtn.setColorFilter(tint)
     }

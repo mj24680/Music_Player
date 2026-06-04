@@ -75,4 +75,19 @@ class MusicFragment : Fragment() {
             musicAdapter.updateList(songs)
         }
     }
+
+    fun filterSongs(query: String) {
+
+        if (query.isEmpty()) {
+            musicAdapter.updateList(MusicListMF)
+            return
+        }
+
+        val filteredList = MusicListMF.filter {
+
+            it.title.contains(query, true) || it.artist.contains(query, true)
+        }
+
+        musicAdapter.updateList(filteredList)
+    }
 }

@@ -7,6 +7,7 @@ import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.models.setSongPosition
+import com.example.musicplayer.ui.activities.MainActivity
 import com.example.musicplayer.ui.activities.PlayerActivity
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.binding
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicListPA
@@ -25,9 +26,9 @@ class NotificationReceiver : BroadcastReceiver() {
                 PlayerActivity.isPlaying = false
                 // update UI if Player Activity Visible
                 PlayerActivity.binding.ivPlayPause.setImageResource(R.drawable.ic_play)
+                MainActivity.binding.ivPlaypause.setImageResource(R.drawable.ic_play)
                 musicService?.stopForeground(true)
                 // musicService?.mediaPlayer?.release()
-                // musicService = null
                 // exitProcess(1)
             }
         }
@@ -38,6 +39,7 @@ class NotificationReceiver : BroadcastReceiver() {
         PlayerActivity.musicService!!.mediaPlayer!!.start()
         PlayerActivity.musicService!!.showNotification("Pause")
         PlayerActivity.binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
+        MainActivity.binding.ivPlaypause.setImageResource(R.drawable.ic_pause)
     }
 
     private fun pauseMusic() {
@@ -45,17 +47,26 @@ class NotificationReceiver : BroadcastReceiver() {
         PlayerActivity.musicService!!.mediaPlayer!!.pause()
         PlayerActivity.musicService!!.showNotification("Play")
         PlayerActivity.binding.ivPlayPause.setImageResource(R.drawable.ic_play)
+        MainActivity.binding.ivPlaypause.setImageResource(R.drawable.ic_play)
     }
 
     private fun preNextSong(increment: Boolean, context: Context) {
         setSongPosition(increment = increment)
-        musicService!!.createMediaPlayer()
+        PlayerActivity.musicService!!.createMediaPlayer()
         Glide.with(context)
             .load(musicListPA[songPosition].imgUri)
             .apply(RequestOptions().placeholder(R.drawable.ic_music_default)).centerCrop()
             .into(binding.playerImage)
-        binding.playerTitle.text = musicListPA[songPosition].title
-        binding.playerSubtitle.text = musicListPA[songPosition].artist
+        PlayerActivity.binding.playerTitle.text = musicListPA[songPosition].title
+        PlayerActivity.binding.playerSubtitle.text = musicListPA[songPosition].artist
+
+        // if play next song from notification, change layout of play bar using this
+        Glide.with(context)
+            .load(musicListPA[songPosition].imgUri)
+            .apply(RequestOptions().placeholder(R.drawable.ic_music_default)).centerCrop()
+            .into(MainActivity.Companion.binding.ivPlaybarThumb)
+        MainActivity.Companion.binding.tvPlaybarTitle.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
+
         playMusic()
     }
 }

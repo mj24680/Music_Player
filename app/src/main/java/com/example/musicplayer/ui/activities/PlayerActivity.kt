@@ -35,6 +35,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         // var mediaPlayer: MediaPlayer? = null
         var isPlaying: Boolean = false
+        var nowPlayingId: String  = ""
 
         var musicService: MusicService? = null
 
@@ -48,11 +49,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         super.onCreate(savedInstanceState)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // for starting service
-        val intent = Intent(this, MusicService::class.java)
-        ContextCompat.startForegroundService(this, intent)
-        bindService(intent, this, BIND_AUTO_CREATE)
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
@@ -104,10 +100,16 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.playerTitle.isSelected = true
+    }
+
     private fun initializeLayout() {
         songPosition = intent.getIntExtra("index", 0)
         when (intent.getStringExtra("class")) {
             "MusicAdapter" -> {
+                startService()
                 musicListPA = ArrayList()
                 musicListPA.addAll(MusicFragment.MusicListMF)
                 setLayout()
@@ -115,11 +117,25 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             }
 
             "MainActivity" -> {
+                startService()
                 musicListPA = ArrayList()
                 musicListPA.addAll(MusicFragment.MusicListMF)
                 musicListPA.shuffle()
                 setLayout()
                 // createMediaPlayer()
+            }
+
+            "NowPlaying" -> {
+                setLayout()
+                binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+                binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+                binding.seekBar.progress = musicService!!.mediaPlayer!!.currentPosition
+                binding.seekBar.max = musicService!!.mediaPlayer!!.duration
+                if(isPlaying){
+                    binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
+                }else{
+                    binding.ivPlayPause.setImageResource(R.drawable.ic_play)
+                }
             }
         }
     }
@@ -214,6 +230,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             setLayout()
             createMediaPlayer()
         }
+    }
+
+    private fun startService(){
+        // for starting service
+        val intent = Intent(this, MusicService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+        bindService(intent, this, BIND_AUTO_CREATE)
     }
 
     override fun onServiceConnected(

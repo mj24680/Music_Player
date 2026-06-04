@@ -17,7 +17,7 @@ class MainViewModel : ViewModel() {
     val isNotificationPermissionGranted: LiveData<Boolean> = _isNotificationPermissionGranted
 
     init {
-        _selectedTab.value = NavItems.HOME
+        _selectedTab.value = NavItems.MUSIC
     }
 
     fun selectTab(tab: NavItems) {
