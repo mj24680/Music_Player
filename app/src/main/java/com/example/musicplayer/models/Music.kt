@@ -3,6 +3,8 @@ package com.example.musicplayer.models
 import com.example.musicplayer.ui.activities.PlayerActivity
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicListPA
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.songPosition
+import com.example.musicplayer.ui.fragments.FavouriteFragment
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 data class Music(
@@ -14,6 +16,17 @@ data class Music(
     val path: String,
     val imgUri: String
 )
+
+class Playlist{
+    lateinit var name: String
+    lateinit var playlist: ArrayList<Music>
+    lateinit var createdBy: String
+    lateinit var createdOn: String
+}
+
+class MusicPlaylist{
+    var ref: ArrayList<Playlist> = ArrayList()
+}
 
 fun formatDuration(duration: Long): String {
     val minutes = TimeUnit.MINUTES.convert(duration, TimeUnit.MILLISECONDS)
@@ -38,4 +51,24 @@ fun setSongPosition(increment: Boolean) { // for first and end song
             --songPosition
         }
     }
+}
+
+// when player activity open, loop through favourite songs
+fun favouriteChecker(id: String): Int {
+    PlayerActivity.isFavourite = false
+    FavouriteFragment.favouriteSongs.forEachIndexed { index, music ->
+        if (id == music.id) {
+            PlayerActivity.isFavourite = true
+            return index
+        }
+    }
+    return -1
+}
+
+fun checkPlaylist(playlist: ArrayList<Music>) : ArrayList<Music>{
+    playlist.removeAll { music ->
+        val file = File(music.path)
+        !file.exists()
+    }
+    return playlist
 }

@@ -19,8 +19,8 @@
 
         <ImageView
             android:id="@+id/btnClose"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
+            android:layout_width="@dimen/_22sdp"
+            android:layout_height="@dimen/_22sdp"
             android:src="@drawable/ic_close"
             android:layout_marginStart="@dimen/_20sdp"
             />
@@ -33,18 +33,21 @@
             >
 
             <ImageView
-                android:id="@+id/iv_repeat"
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
-                android:src="@drawable/ic_repeat"
+                android:id="@+id/iv_fvrt"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:src="@drawable/white_heart"
                 android:layout_marginEnd="@dimen/_18sdp"
+                android:layout_gravity="center"
                 />
 
             <ImageView
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
-                android:src="@drawable/ic_fvrt"
+                android:id="@+id/iv_repeat"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:src="@drawable/ic_repeat"
                 android:layout_marginEnd="@dimen/_18sdp"
+                android:layout_gravity="center"
                 />
 
 <!--            <ImageView-->
@@ -56,10 +59,11 @@
 
             <ImageView
                 android:id="@+id/iv_share"
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
                 android:src="@drawable/ic_share"
                 android:layout_marginEnd="@dimen/_18sdp"
+                android:layout_gravity="center"
                 />
         </LinearLayout>
 
@@ -82,10 +86,10 @@
 
         <ImageView
             android:id="@+id/playerImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="@dimen/_120sdp"
+            android:layout_height="@dimen/_120sdp"
             android:src="@drawable/ic_music_default"
-            android:scaleType="center"
+            android:layout_gravity="center"
             />
 
     </com.google.android.material.card.MaterialCardView>
@@ -95,7 +99,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/_18sdp"
-        android:layout_marginTop="@dimen/_30sdp"
+        android:layout_marginVertical="@dimen/_10sdp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -128,7 +132,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_8sdp"
-            android:progress="30"
+            android:progress="0"
             android:progressTint="#F44BF8" />
 
         <LinearLayout

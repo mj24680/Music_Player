@@ -13,17 +13,21 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityPlayerBinding
 import com.example.musicplayer.models.Music
+import com.example.musicplayer.models.favouriteChecker
 import com.example.musicplayer.models.formatDuration
 import com.example.musicplayer.models.setSongPosition
 import com.example.musicplayer.services.MusicService
+import com.example.musicplayer.ui.adapters.FavouriteAdapter
+import com.example.musicplayer.ui.fragments.FavouriteFragment
 import com.example.musicplayer.ui.fragments.MusicFragment
-import com.example.musicplayer.viewmodel.MusicViewModel
+import com.example.musicplayer.ui.fragments.PlaylistFragment
+import java.io.File
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCompletionListener {
 
@@ -35,13 +39,16 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
         // var mediaPlayer: MediaPlayer? = null
         var isPlaying: Boolean = false
-        var nowPlayingId: String  = ""
+        var nowPlayingId: String = ""
 
         var musicService: MusicService? = null
 
         lateinit var binding: ActivityPlayerBinding
 
         var repeat: Boolean = false
+
+        var isFavourite: Boolean = false
+        var fIndex: Int = -1
     }
 
 
@@ -51,6 +58,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         setContentView(binding.root)
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
         initializeLayout()
 
@@ -98,6 +106,21 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             startActivity(Intent.createChooser(shareIntent, "Sharing Music File"))
         }
 
+        binding.ivFvrt.setOnClickListener {
+            if (isFavourite) {
+                // already in favourite, so remove
+                isFavourite = false
+                binding.ivFvrt.setImageResource(R.drawable.white_heart)
+                FavouriteFragment.favouriteSongs.removeAt(fIndex)
+                FavouriteFragment.favouriteAdapter?.notifyDataSetChanged()
+            } else {
+                isFavourite = true
+                binding.ivFvrt.setImageResource(R.drawable.red_heart)
+                FavouriteFragment.favouriteSongs.add(musicListPA[songPosition])
+                fIndex = FavouriteFragment.favouriteSongs.size - 1
+                FavouriteFragment.favouriteAdapter?.notifyDataSetChanged()
+            }
+        }
     }
 
     override fun onResume() {
@@ -127,20 +150,40 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
 
             "NowPlaying" -> {
                 setLayout()
-                binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
-                binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+                binding.tvSeekBarStart.text =
+                    formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+                binding.tvSeekBarEnd.text =
+                    formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
                 binding.seekBar.progress = musicService!!.mediaPlayer!!.currentPosition
                 binding.seekBar.max = musicService!!.mediaPlayer!!.duration
-                if(isPlaying){
+                if (isPlaying) {
                     binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
-                }else{
+                } else {
                     binding.ivPlayPause.setImageResource(R.drawable.ic_play)
                 }
+            }
+
+            "FavouriteAdapter" -> {
+                startService()
+                musicListPA = ArrayList()
+                musicListPA.addAll(FavouriteFragment.favouriteSongs)
+                setLayout()
+            }
+
+            "PlaylistDetailsAdapter" -> {
+                startService()
+                musicListPA = ArrayList()
+                musicListPA.addAll(PlaylistFragment.musicPlaylist.ref[PlaylistDetails.currentPlaylistPos].playlist)
+                setLayout()
             }
         }
     }
 
     private fun setLayout() {
+        //for favourite
+        fIndex = favouriteChecker(musicListPA[songPosition].id)
+
+
         Glide.with(this)
             .load(musicListPA[songPosition].imgUri)
             .apply(RequestOptions().placeholder(R.drawable.ic_music_default)).centerCrop()
@@ -154,6 +197,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
                 R.color.nav_selected_tint
             )
         )
+
+        if (isFavourite) {
+            binding.ivFvrt.setImageResource(R.drawable.red_heart)
+        } else {
+            binding.ivFvrt.setImageResource(R.drawable.white_heart)
+        }
+
     }
 
     private fun createMediaPlayer() {
@@ -173,11 +223,14 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
             binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
             musicService!!.showNotification("Pause")
             // music current and end time
-            binding.tvSeekBarStart.text = formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
-            binding.tvSeekBarEnd.text = formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
+            binding.tvSeekBarStart.text =
+                formatDuration(musicService!!.mediaPlayer!!.currentPosition.toLong())
+            binding.tvSeekBarEnd.text =
+                formatDuration(musicService!!.mediaPlayer!!.duration.toLong())
             binding.seekBar.progress = 0 // initial 0
             binding.seekBar.max = musicService!!.mediaPlayer!!.duration
             musicService!!.mediaPlayer!!.setOnCompletionListener(this)
+            nowPlayingId = musicListPA[songPosition].id
         } catch (e: Exception) {
             return
         }
@@ -232,7 +285,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection, MediaPlayer.OnCom
         }
     }
 
-    private fun startService(){
+    private fun startService() {
         // for starting service
         val intent = Intent(this, MusicService::class.java)
         ContextCompat.startForegroundService(this, intent)

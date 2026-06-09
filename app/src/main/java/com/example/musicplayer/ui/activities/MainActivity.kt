@@ -3,29 +3,36 @@ package com.example.musicplayer.ui.activities
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityMainBinding
+import com.example.musicplayer.models.Music
+import com.example.musicplayer.models.MusicPlaylist
 import com.example.musicplayer.models.setSongPosition
 import com.example.musicplayer.navigation.NavItems
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicListPA
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.songPosition
-import com.example.musicplayer.ui.fragments.HomeFragment
+import com.example.musicplayer.ui.fragments.FavouriteFragment
 import com.example.musicplayer.ui.fragments.MusicFragment
 import com.example.musicplayer.ui.fragments.PlaylistFragment
 import com.example.musicplayer.utils.NavigationUIController
 import com.example.musicplayer.viewmodel.MainViewModel
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
@@ -38,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var navigationController: NavigationUIController
 
-    private lateinit var homeFragment: HomeFragment
+    private lateinit var favouriteFragment: FavouriteFragment
     lateinit var musicFragment: MusicFragment
     private lateinit var playlistFragment: PlaylistFragment
 
@@ -60,7 +67,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
         setContentView(binding.root)
+
+        window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.statusBar)
 
         navigationController = NavigationUIController(binding, this)
 
@@ -70,12 +81,27 @@ class MainActivity : AppCompatActivity() {
         requestAudioPermission()
         requestNotificationPermission()
 
-        window.statusBarColor = ContextCompat.getColor(this, R.color.statusBar)
+        // retrieve favourites data using shared preferences
+        FavouriteFragment.favouriteSongs = ArrayList()
+        val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE)
+        val jsonString = editor.getString("FavouriteSongs", null)
+        val typeToken = object : TypeToken<ArrayList<Music>>(){}.type
+        if(jsonString != null){
+            val data : ArrayList<Music> = GsonBuilder().create().fromJson(jsonString, typeToken)
+            FavouriteFragment.favouriteSongs.addAll(data)
+        }
+
+        // retrieve playlists data
+        PlaylistFragment.musicPlaylist = MusicPlaylist()
+        val jsonStringPlaylist = editor.getString("MusicPlaylist", null)
+        if(jsonStringPlaylist != null){
+            val dataPlaylist : MusicPlaylist = GsonBuilder().create().fromJson(jsonStringPlaylist, MusicPlaylist::class.java)
+            PlaylistFragment.musicPlaylist = dataPlaylist
+        }
 
         if (savedInstanceState == null) {
             viewModel.selectTab(NavItems.MUSIC)
         }
-
 
         binding.icSearch.setOnClickListener {
             binding.searchView.requestFocus()
@@ -95,6 +121,18 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
+        val searchText = binding.searchView.findViewById<android.widget.AutoCompleteTextView>(
+            androidx.appcompat.R.id.search_src_text
+        )
+
+        searchText.setTextColor(
+            ContextCompat.getColor(this, R.color.grey)
+        )
+
+        searchText.setHintTextColor(
+            ContextCompat.getColor(this, R.color.grey)
+        )
+
         binding.icShuffle.setOnClickListener {
             val intent = Intent(this@MainActivity, PlayerActivity::class.java)
             intent.putExtra("index", 0)
@@ -103,6 +141,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.playbar.visibility = View.INVISIBLE
+        binding.tvCurrentSongMsg.visibility = View.VISIBLE
         binding.ivPlaypause.setOnClickListener {
             if(PlayerActivity.isPlaying) pauseMusic() else playMusic()
         }
@@ -127,8 +166,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun setBlackNavBarWithWhiteIcons() {
+        // 1. Set nav bar color
+        window.navigationBarColor = Color.BLACK
+
+        // 2. Make system icons light (white)
+        WindowCompat.getInsetsController(window, window.decorView)
+            ?.isAppearanceLightNavigationBars = false
+
+        // 3. Fallback for older APIs
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility =
+            window.decorView.systemUiVisibility and
+                    View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+    }
+
     override fun onResume() {
         super.onResume()
+
+        // store favourites data using shared preferences
+        val editor = getSharedPreferences("FAVOURITES", MODE_PRIVATE).edit()
+        // for favourites
+        val jsonString = GsonBuilder().create().toJson(FavouriteFragment.favouriteSongs)
+        editor.putString("FavouriteSongs", jsonString)
+
+        // for playlists
+        val jsonStringPlalist = GsonBuilder().create().toJson(PlaylistFragment.musicPlaylist)
+        editor.putString("MusicPlaylist", jsonStringPlalist)
+
+        editor.apply()
 
         binding.tvPlaybarTitle.isSelected = true
 
@@ -140,6 +206,7 @@ class MainActivity : AppCompatActivity() {
 
         if(PlayerActivity.musicService != null){
             binding.playbar.visibility = View.VISIBLE
+            binding.tvCurrentSongMsg.visibility = View.INVISIBLE
             Glide.with(this)
                 .load(musicListPA[songPosition].imgUri)
                 .apply(RequestOptions().placeholder(R.drawable.ic_music_default)).centerCrop()
@@ -155,12 +222,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFragments() {
-        homeFragment = HomeFragment()
+        favouriteFragment = FavouriteFragment()
         musicFragment = MusicFragment()
         playlistFragment = PlaylistFragment()
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.fl_navigation, homeFragment, NavItems.FAVOURITE.name)
+            .add(R.id.fl_navigation, favouriteFragment, NavItems.FAVOURITE.name)
             .add(R.id.fl_navigation, musicFragment, NavItems.MUSIC.name).hide(musicFragment)
             .add(R.id.fl_navigation, playlistFragment, NavItems.PLAYLIST.name)
             .hide(playlistFragment)
@@ -202,7 +269,7 @@ class MainActivity : AppCompatActivity() {
             navigationController.update(tab)
 
             when (tab) {
-                NavItems.FAVOURITE -> showFragment(homeFragment)
+                NavItems.FAVOURITE -> showFragment(favouriteFragment)
                 NavItems.MUSIC -> showFragment(musicFragment)
                 NavItems.PLAYLIST -> showFragment(playlistFragment)
             }

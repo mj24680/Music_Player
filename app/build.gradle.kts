@@ -52,8 +52,14 @@ dependencies {
     implementation("com.intuit.sdp:sdp-android:1.1.1")
     implementation("com.intuit.ssp:ssp-android:1.1.1")
 
-    implementation("com.github.bumptech.glide:glide:5.0.5")
+    implementation("com.github.bumptech.glide:glide:5.0.7")
 
     implementation("androidx.media:media:1.8.0")
+
+    // for convert Music List in a format, so we can store in shared prefrences
+    implementation("com.google.code.gson:gson:2.14.0")
+
+    // circular image view
+    implementation("de.hdodenhof:circleimageview:3.1.0")
 
 }

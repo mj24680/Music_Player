@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+
+    <!-- App-specific external storage -->
+    <external-files-path
+        name="external_files"
+        path="." />
+
+    <!-- Cache directory -->
+    <cache-path
+        name="cache_files"
+        path="." />
+
+    <!-- External cache -->
+    <external-cache-path
+        name="external_cache"
+        path="." />
+
+    <!-- Internal files directory -->
+    <files-path
+        name="internal_files"
+        path="." />
+
+    <!-- Entire external storage (use cautiously) -->
+    <external-path
+        name="external_storage"
+        path="." />
+
+</paths>

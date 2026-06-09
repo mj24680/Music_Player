@@ -6,6 +6,7 @@ import android.content.Intent
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.musicplayer.models.favouriteChecker
 import com.example.musicplayer.models.setSongPosition
 import com.example.musicplayer.ui.activities.MainActivity
 import com.example.musicplayer.ui.activities.PlayerActivity
@@ -68,5 +69,13 @@ class NotificationReceiver : BroadcastReceiver() {
         MainActivity.Companion.binding.tvPlaybarTitle.text = PlayerActivity.musicListPA[PlayerActivity.songPosition].title
 
         playMusic()
+
+        // if click next in notification layout change of player activity and favourite icon not updated, this code for this issue
+        PlayerActivity.fIndex = favouriteChecker(PlayerActivity.musicListPA[PlayerActivity.songPosition].id)
+        if(PlayerActivity.isFavourite){
+            PlayerActivity.binding.ivFvrt.setImageResource(R.drawable.red_heart)
+        }else{
+            PlayerActivity.binding.ivFvrt.setImageResource(R.drawable.white_heart)
+        }
     }
 }

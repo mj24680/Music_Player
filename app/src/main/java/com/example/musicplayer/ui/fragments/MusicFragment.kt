@@ -49,7 +49,8 @@ class MusicFragment : Fragment() {
 
         binding?.rvMusics?.apply {
             layoutManager = LinearLayoutManager(requireContext())
-
+            setHasFixedSize(true)
+            setItemViewCacheSize(12)
             musicAdapter = MusicAdapter(requireContext(), emptyList())
             adapter = musicAdapter
         }

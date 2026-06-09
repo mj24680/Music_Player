@@ -18,10 +18,12 @@ import com.example.musicplayer.ApplicationClass
 import com.example.musicplayer.NotificationReceiver
 import com.example.musicplayer.R
 import com.example.musicplayer.models.formatDuration
+import com.example.musicplayer.ui.activities.MainActivity
 import com.example.musicplayer.ui.activities.PlayerActivity
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.binding
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicListPA
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.musicService
+import com.example.musicplayer.ui.activities.PlayerActivity.Companion.nowPlayingId
 import com.example.musicplayer.ui.activities.PlayerActivity.Companion.songPosition
 
 class MusicService : Service() {
@@ -54,6 +56,9 @@ class MusicService : Service() {
     fun showNotification(playPauseString: String) {
         Log.d("MusicService", "showNotification called")
 
+        val intent = Intent(baseContext, MainActivity::class.java)
+        val contentIntent = PendingIntent.getActivity(baseContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
         val previousIntent = Intent(baseContext, NotificationReceiver::class.java).setAction(ApplicationClass.PREVIOUS)
         val previousPendingIntent = PendingIntent.getBroadcast(baseContext, 0, previousIntent, PendingIntent.FLAG_IMMUTABLE)
 
@@ -69,12 +74,13 @@ class MusicService : Service() {
 
         val notification = NotificationCompat.Builder(baseContext, ApplicationClass.CHANNEL_ID)
             .setContentTitle(PlayerActivity.musicListPA[PlayerActivity.songPosition].title)
-            .setContentText(PlayerActivity.musicListPA[PlayerActivity.songPosition].artist)
+            .setContentText(PlayerActivity.musicListPA[PlayerActivity.songPosition].artist.replace("<unknown>", "unknown"))
             .setSmallIcon(R.drawable.ic_playlist)
             .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_music_default))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
+            .setContentIntent(contentIntent)
             .addAction(R.drawable.ic_previous, "Previous", previousPendingIntent)
             .addAction(R.drawable.ic_pause, playPauseString, playPendingIntent)
             .addAction(R.drawable.ic_next, "Next", nextPendingIntent)
@@ -103,11 +109,12 @@ class MusicService : Service() {
             binding.ivPlayPause.setImageResource(R.drawable.ic_pause)
             musicService!!.showNotification("Pause")
 
-            // because when click on next button in notification new song plays and seekbar still on previous song position
+            // because when click on next button in notification new song plays and seekbar still on previous song duration position
             binding.tvSeekBarStart.text = formatDuration(mediaPlayer!!.currentPosition.toLong())
             binding.tvSeekBarEnd.text = formatDuration(mediaPlayer!!.duration.toLong())
 
             binding.seekBar.max = musicService!!.mediaPlayer!!.duration
+            nowPlayingId = musicListPA[songPosition].id
 
         } catch (e: Exception) {
             return
