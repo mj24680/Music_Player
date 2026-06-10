@@ -3,8 +3,10 @@ package com.example.musicplayer.services
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
@@ -15,6 +17,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.musicplayer.ApplicationClass
+import com.example.musicplayer.HeadphoneReceiver
 import com.example.musicplayer.NotificationReceiver
 import com.example.musicplayer.R
 import com.example.musicplayer.models.formatDuration
@@ -30,6 +33,7 @@ class MusicService : Service() {
 
     private var myBinder = MyBinder()
     var mediaPlayer: MediaPlayer? = null
+    private lateinit var headphoneReceiver: HeadphoneReceiver
     private lateinit var mediaSession: MediaSessionCompat
 
     // helps use to run same code repeatedly
@@ -44,6 +48,46 @@ class MusicService : Service() {
         super.onCreate()
         mediaSession = MediaSessionCompat(baseContext, "MyMusicSession")
         mediaSession.isActive = true
+
+        // pause music, when unplug headphones
+        headphoneReceiver = HeadphoneReceiver {
+            // Only pause if music is actually playing
+            if (PlayerActivity.isPlaying) {
+                mediaPlayer?.pause()
+                PlayerActivity.isPlaying = false // 1. Update the global state
+
+                showNotification("Play") // 2. Update notification text
+
+                // 3. Update PlayerActivity UI (using try-catch to avoid crash if Activity is closed)
+                try {
+                    binding.ivPlayPause.setImageResource(R.drawable.ic_play)
+                } catch (e: Exception) {
+                    // Activity is not active, ignore
+                }
+
+                // 4. Update MainActivity UI Playbar
+                try {
+                    MainActivity.binding.ivPlaypause.setImageResource(R.drawable.ic_play)
+                } catch (e: Exception) {
+                    // Activity is not active, ignore
+                }
+            }
+        }
+        // Registering the receiver to listen for headphone disconnection
+        registerReceiver(headphoneReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        try {
+            unregisterReceiver(headphoneReceiver)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     // this class helps us to return our main class object
